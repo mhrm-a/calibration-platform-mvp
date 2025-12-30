@@ -1,7 +1,4 @@
 from django.db import models
-
-# Create your models here.
-from django.db import models
 from django.contrib.auth.models import AbstractUser
 from django.utils.translation import gettext_lazy as _
 
@@ -26,12 +23,18 @@ class User(AbstractUser):
 
 # 2. مدل تجهیزات
 class Equipment(models.Model):
+    # --- کلاس‌های انتخابی (Choices) ---
     class Status(models.TextChoices):
         ACTIVE = 'ACTIVE', _('فعال')
         IN_CALIBRATION = 'IN_CAL', _('در حال کالیبراسیون')
         OUT_OF_SERVICE = 'OUT', _('خارج از سرویس')
         SCRAPPED = 'SCRAPPED', _('اسقاط شده')
 
+    class Category(models.TextChoices):
+        CUSTOMER_EQUIPMENT = 'CUSTOMER', _('تجهیز مشتری (تحت کالیبراسیون)')
+        REFERENCE_STANDARD = 'REFERENCE', _('تجهیز مرجع (استاندارد آزمایشگاه)')
+
+    # --- فیلدهای اصلی (این‌ها نباید پاک شوند) ---
     name = models.CharField(max_length=200, verbose_name="نام تجهیز")
     serial_number = models.CharField(max_length=100, unique=True, verbose_name="شماره سریال")
     manufacturer = models.CharField(max_length=100, verbose_name="سازنده", blank=True)
@@ -40,6 +43,14 @@ class Equipment(models.Model):
     # ارتباط با مدل User (صاحب تجهیز)
     owner = models.ForeignKey(User, on_delete=models.CASCADE, related_name='equipments', verbose_name="مالک")
     
+    # فیلد جدید دسته‌بندی
+    category = models.CharField(
+        max_length=20, 
+        choices=Category.choices, 
+        default=Category.CUSTOMER_EQUIPMENT,
+        verbose_name="دسته تجهیز"
+    )
+
     calibration_interval = models.IntegerField(default=365, help_text="تعداد روز", verbose_name="دوره تناوب")
     last_calibration_date = models.DateField(null=True, blank=True, verbose_name="آخرین کالیبراسیون")
     next_due_date = models.DateField(null=True, blank=True, verbose_name="تاریخ سررسید بعدی")

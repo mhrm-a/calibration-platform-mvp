@@ -38,6 +38,7 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'assets',  # برنامه مدیریت دارایی‌ها
+    'operations',  # برنامه عملیات کالیبراسیون
 ]
 
 MIDDLEWARE = [
